@@ -62,5 +62,5 @@ class Dict:
 if __name__ == '__main__':
     d = Dict()
     while True:
-        blocks = d.search(input('Search: '))
+        blocks = d.search(input('search: '))
         d.show_results(blocks)
