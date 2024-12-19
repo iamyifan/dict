@@ -21,35 +21,46 @@ class Dict:
         for p in json['phonetics']:
             if 'text' in p.keys():
                 block += f"{p['text']} "
-        block += '\n'
+        block = block[:-1] + '\n'
         blocks.append(block)
-
         for m in json['meanings']:
             pos = m['partOfSpeech']
             block = ''
             for d in m['definitions']:
-                block += f"[{pos}] {d['definition']}\n"
+                block += f"[{pos}] def: {d['definition']}\n"
                 if 'example' in d.keys():
-                    block += " " * (len(pos) + 3) + f"example: {d['example']}\n"
+                    block += " " * (len(pos) + 3) + f"eg: {d['example']}\n"
                 if len(d['synonyms']) > 0:
-                    block += " " * (len(pos) + 3) + f"synonyms: {d['synonyms']}\n"
+                    tmp = ''
+                    for s in d['synonyms']:
+                        tmp += f'{s}; '
+                    block += " " * (len(pos) + 3) + f"syn: {tmp[:-2]}\n"
                 if len(d['antonyms']) > 0:
-                    block += " " * (len(pos) + 3) + f"antonyms: {d['antonyms']}\n"
+                    tmp = ''
+                    for a in d['antonyms']:
+                        tmp += f'{a}; '
+                    block += " " * (len(pos) + 3) + f"ant: {tmp[:-2]}\n"
             blocks.append(block)
         return blocks
 
-    def show_results(self, blocks: list[str]) -> None:
-        for b in blocks:
-            print(b)
+    def show_results(self, blocks: None | list[str]) -> None:
+        res = ''
+        if blocks != None:
+            for b in blocks:
+                res += b
+        print(res)
 
-    def search(self, word: str) -> None:
+    def search(self, word: str) -> None | str:
         url = self.build_url(word)
-        json = self.retrieve_url(url)[0]
-        blocks = self.parse_json(json)
-        self.show_results(blocks)
+        json = self.retrieve_url(url)
+        if type(json) == dict:
+            return None
+        else:
+            return self.parse_json(json[0])
 
 
 if __name__ == '__main__':
     d = Dict()
     while True:
-        d.search(input('Search: '))
+        blocks = d.search(input('Search: '))
+        d.show_results(blocks)
